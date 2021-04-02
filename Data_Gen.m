@@ -61,7 +61,9 @@ end
 
 %% --- Creating Inputs for the equations and storing data --- %%
 
-
+lmin = 100e-6;
+lmax = 100e-3;
+Lip = (lmin - lmax)*rand(1,5000) + lmax;
 
 
 %% --- Getting ouput from equations and storing data --- %%
