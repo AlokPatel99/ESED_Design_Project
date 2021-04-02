@@ -52,6 +52,13 @@ function w = wire_func(wa,ku,n)
     w = wa*ku/n;
 end
 
+function v2 = volume_coil(dw,tw,Awind,N)
+%VOLUME SUMMARY of this function goes here
+%   Detailed explaination goes here
+    dn = 2*dw + tw;
+    v2 = (pi*dn*N)*Awind;
+end
+
 %% --- Creating Inputs for the equations and storing data --- %%
 
 
