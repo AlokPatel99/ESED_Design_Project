@@ -2,13 +2,27 @@
 % This file is used to create the data set for the training of the NN.
 
 
-%% --- Functions for equations --- %%
 
+%% --- Creating Inputs for the equations and storing data --- %%
 %constant values
 fill_factor = 0.5; %fill facotr of core
-uo = 4*pi*1e-7; %free space permeability
+uo = 4*pi*1e-7; %free space permeability 
 %eta_r = 1000; %relative permeablilty; depends on the type of core materials
 i = 2.5; %constnat current
+
+%Random gen if Inductance Value
+lmin = 100e-6;
+lmax = 100e-3;
+Lip = (lmin - lmax)*rand(1,5000) + lmax;
+
+%% --- Getting ouput from equations and storing data --- %%
+
+
+%% --- Data in Excel File --- %%
+
+
+
+%% --- Functions for equations --- %%
 
 function f = flux(mmf,tr)
 %FLUX Summary of this function goes here
@@ -40,10 +54,10 @@ function R = reluctance(h,tc,ur,uo,A_back,A_top,A_pole,tw,w,tg,A_air,lg)
     R = TLCR + TCR + TRCR + PR + AGR + BCR;  %total reluctance
 end
 
-function v = volume_core(h,d,A_core,w,tw,tc,tg,lg)
+function v1 = volume_core(h,d,A_core,w,tw,tc,tg,lg)
 %VOLUME Summary of this function goes here
 %   Detailed explanation goes here
-    v = h*d*A_core + 2*(w - tw)*tc*A_core + (h - 2*tc - lg)*tg*A_core;
+    v1 = h*d*A_core + 2*(w - tw)*tc*A_core + (h - 2*tc - lg)*tg*A_core;
 end
 
 function w = wire_func(wa,ku,n)
@@ -58,18 +72,5 @@ function v2 = volume_coil(dw,tw,Awind,N)
     dn = 2*dw + tw;
     v2 = (pi*dn*N)*Awind;
 end
-
-%% --- Creating Inputs for the equations and storing data --- %%
-
-lmin = 100e-6;
-lmax = 100e-3;
-Lip = (lmin - lmax)*rand(1,5000) + lmax;
-
-
-%% --- Getting ouput from equations and storing data --- %%
-
-
-%% --- Data in Excel File --- %%
-
 
 %% ----- Code END ----- %%%
