@@ -61,6 +61,7 @@ tg = tc;
 % 1. corresponds to the Silicon Steal material
 % 2. corresponds to the Ferrites material
 mat_core = [1,2];
+material = ["Silicon Steel","Ferrites"];
 ur = [1000,500];
 
 %Random generation of area to fit Inductor
@@ -103,6 +104,7 @@ l_g_d = [];             %Lenght of the airgap
 %Other important variables for solving equations are set below
 TR = zeros(1,N_ex);
 I = zeros(1,N_ex);
+mat = zeros(1,N_ex); 
 n = 0;          %for termination of the loop
 i = 0;          %for the index of the array
 
@@ -112,6 +114,7 @@ while i<N_ex
         for m=1:length(mat_core)
             TR(i+1) = reluctance(hop(i+1),tc(i+1),ur(m),uo,A_back(i+1),A_top(i+1),A_pole(i+1),tw(i+1),wop(i+1),tg(i+1),A_air(i+1),lgop(i+1));
             I(i+1) = inductance(Nop(i+1),TR(i+1));
+            mat(i+1) = material(m);
             i = i+1;
         end
     end
