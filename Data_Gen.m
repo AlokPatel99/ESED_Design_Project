@@ -12,7 +12,7 @@ N_ex = 50;
 fill_factor = 0.5; %fill facotr of core
 uo = 4*pi*1e-7; %free space permeability 
 %eta_r = 1000; %relative permeablilty; depends on the type of core materials
-i = 2.5; %constnat current
+%i = 2.5; %constnat current
 %{
 %Random generation of Inductance Value
 lmin = 100e-6;
@@ -79,6 +79,7 @@ lgop = (lgmin - lgmax)*rand(1,N_ex) + lgmax;
 guage_set = [16,17,18,19,20];
 d_wire = 1e-3*[1.2903, 1.1506, 1.0236, 0.9119];
 Acwire = pi*((d_wire/2).^2);
+Imax = [];
 
 %% --- Getting ouput from equations and storing data --- %%
 % Two for loops, one with 5 different wire and other with two core material
@@ -103,8 +104,12 @@ l_g_d = [];             %Lenght of the airgap
 %Other important variables for solving equations are set below
 TR = zeros(1,N_ex);
 I = zeros(1,N_ex);
+A_space = []; 
+A_wire = [];
 n = 0;          %for termination of the loop
 i = 0;          %for the index of the array
+v1 = 0;
+v2 = 0;
 
 %While loop will generate in total 5000 data set as n is set at 5000.
 while i<N_ex             
@@ -112,6 +117,12 @@ while i<N_ex
         for m=1:length(mat_core)
             TR(i+1) = reluctance(hop(i+1),tc(i+1),ur(m),uo,A_back(i+1),A_top(i+1),A_pole(i+1),tw(i+1),wop(i+1),tg(i+1),A_air(i+1),lgop(i+1));
             I(i+1) = inductance(Nop(i+1),TR(i+1));
+            A_space(i+1) = hop(i+1)*wop(i+1);
+            A_wire(i+1) = wire_func(Wa(i+1),fill_factor,Nop(i+1));
+            v1 = volume_core(hop(i+1),dop(i+1),Acip(i+1),wop(i+1),tw(i+1),tc(i+1),tg(i+1),lgop(i+1));
+            %dw = 2
+            %v2 = volume_coil(dw,tw(i+1),A_wire(i+1),Nop(i+1));
+            c = cost_total(v1,v2,mat_core);
             i = i+1;
         end
     end
@@ -134,13 +145,13 @@ function I = inductance(n,tr)
 %   Detailed explanation goes here
         I = (n^2)/tr;
 end
-
+%{
 function m = mmf(i,n)
 %MMF Summary of this function goes here
 %   Detailed explanation goes here
     m = i*n/2;
 end
-
+%}
 function R = reluctance(h,tc,ur,uo,A_back,A_top,A_pole,tw,w,tg,A_air,lg)
 %RELUCTANCE Summary of this function goes here
 %   Detailed explanation goes here
@@ -172,11 +183,15 @@ function v2 = volume_coil(dw,tw,Awind,N)
     v2 = (pi*dn*N)*Awind;
 end
 
-function c = cost_total()
+function c = cost_total(v1,v2,mat)
 %Adding all the cost, fixed cost can be set as percantage
 %of the core and winding cost
-
-%c = c1 + c2 + c3 
+density = [7.65e3, 5e3];            %density of the core material(kg/m^3)
+price = [2.12, 5];                  %price of core material($/kg)
+c1 = v1*density(mat)*price(mat);
+c2 = v2*8940*9.13;                  %density of copper is 8940 kg/m^3 and cost is 9.13 $/kg
+c3 = 0.1*(c1+c2);                   %fixed cost of 10% of overall is considered
+c = c1 + c2 + c3; 
 end
 
 %% ----- Code END ----- %%%
