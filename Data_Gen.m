@@ -119,6 +119,12 @@ end
 
 %% --- Data in Excel File --- %%
 
+input_data = [I',mat',Acip'];
+T = array2table(data);
+T.Properties.VariableNames(1:3) = {'Inductance','Material','Cross Sectional Area of Core'};
+%T.Properties.VariableNames(1:4) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space'};
+writetable(T,'CCore.csv')
+
 
 
 %% --- Functions for equations --- %%
