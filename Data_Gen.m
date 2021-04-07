@@ -61,6 +61,7 @@ tg = tc;
 % 1. corresponds to the Silicon Steal material
 % 2. corresponds to the Ferrites material
 mat_core = [1,2];
+material = ["Silicon Steel","Ferrites"];
 ur = [1000,500];
 
 %Random generation of area to fit Inductor
@@ -123,12 +124,29 @@ while i<N_ex
             %dw = 2
             %v2 = volume_coil(dw,tw(i+1),A_wire(i+1),Nop(i+1));
             c = cost_total(v1,v2,mat_core);
+            mat(i+1) = material(m); %material string vector
             i = i+1;
         end
     end
 end
 
 %% --- Data in Excel File --- %%
+
+%inputs write to csv
+
+input_data = [I',mat',Acip',A_space']; %matrix input data
+T = array2table(input_data);
+T.Properties.VariableNames(1:4) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space'};
+%T.Properties.VariableNames(1:4) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space'};
+writetable(T,'CCoreInputData.csv')
+
+
+%output write csv
+output_data = [lgop',hop',wop',Nop',c',A_wire]; %matrix output data
+S = array2table(output_data);
+S.Properties.VariableNames(1:6) = {'Air Gap Length','Height','Width','Number of Turns','Cost','Wire Cross Sectional Area'};
+%S.Properties.VariableNames(1:4) = {'Air Gap Length','Height','Width','Number of Turns','Cost','Wire Cross Sectional Area'};
+writetable(S,'CCoreOutputData.csv')
 
 
 
