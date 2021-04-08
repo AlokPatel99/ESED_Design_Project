@@ -6,7 +6,7 @@
 %% --- Creating Inputs for the equations and storing data --- %%
 
 %Number of examples are set at N_ex
-N_ex = 50;
+N_ex = 5000;
 
 %constant values
 fill_factor = 0.5; %fill facotr of core
@@ -30,18 +30,18 @@ dmax = 1.5;
 dop = (dmin - dmax) + rand(1,N_ex) + dmax;
 %}
 %Random generation of height of the core
-hmin = 2;
-hmax = 5;
+hmin = 2e-2;
+hmax = 5e-2;
 hop = (hmin - hmax) + rand(1,N_ex) + hmax;
 
 %Random generation of widht of the core
-wmin = 2;
-wmax = 5;
+wmin = 2e-2;
+wmax = 5e-2;
 wop = (wmin - wmax)*rand(1,N_ex)  + wmax;
 
 %Random generation of cross-sectional area of the core
-Acmin = 0.5;
-Acmax = 2;
+Acmin = 0.5e-4;
+Acmax = 1e-4;
 Acip = (Acmin - Acmax)*rand(1,N_ex)  + Acmax;
 
 %Setting up other cross sectional area for the core
@@ -65,8 +65,8 @@ material = ["Silicon Steel","Ferrites"];
 ur = [1000,500];
 
 %Random generation of area to fit Inductor
-Amin = 4;
-Amax = 30.25;
+Amin = 4e-4;
+Amax = 30.25e-4;
 Aip = (Amin - Amax)*rand(1,N_ex)  + Amax;
 
 %Random generation of the air gap length
@@ -78,53 +78,67 @@ lgop = (lgmin - lgmax)*rand(1,N_ex) + lgmax;
 %Guage 16 cable have dia of 1.290, similarly other guage cables are listed.
 
 guage_set = [16,17,18,19,20];
-d_wire = 1e-3*[1.2903, 1.1506, 1.0236, 0.9119];
+d_wire = 1e-3*[1.2903, 1.1506, 1.0236, 0.9119, 0.8128];
 Acwire = pi*((d_wire/2).^2);
-Imax = [];
+
+%Random generation of the maximum current
+imin = 0;
+imax = 3.7;
+Imax = (imin - imax)*rand(1,N_ex) + imax;
 
 %% --- Getting ouput from equations and storing data --- %%
 % Two for loops, one with 5 different wire and other with two core material
-% Data variables are defined
-%{
-%Inputs for the NN
-L_ip_d = [];            %Inductance
-mat_ip_d = [];          %Material
-A_core_ip_d = [];       %Area of the core crosssectional area
-A_space_ip_d = [];      %Area of the space available to place the inductor
 
-%Output for the NN
-cost_d = [];            %Total cost for manufacturing the inductor 
-turns_d = [];           %Turns of the inductor 
-L_op_d = [];            %actual inductance calculated according to the design
-d_op_d = [];            %depth of the core
-w_op_d = [];            %width of the core
-h_op_d = [];            %height of the core
-A_w_cross_d = [];       %Crosssectional area of the wire winding
-l_g_d = [];             %Lenght of the airgap
-%}
 %Other important variables for solving equations are set below
 TR = zeros(1,N_ex);
-I = zeros(1,N_ex);
-A_space = []; 
-A_wire = [];
-n = 0;          %for termination of the loop
-i = 0;          %for the index of the array
-v1 = 0;
-v2 = 0;
+L = zeros(1,N_ex);
+A_space = zeros(1,N_ex); 
+guage_op = zeros(1,N_ex);
+Acwire_op = zeros(1,N_ex);
+dw = zeros(1,N_ex);
+v1 = zeros(1,N_ex);
+v2 = zeros(1,N_ex);
+cost_op = zeros(1,N_ex);
+mat_ip = strings(0);
+
+% Data set for the guage cable type
+for i=1:N_ex
+    if Imax(i)<1.5
+        guage_op(i) = 20;
+        Acwire_op(i) = Acwire(5);
+        dw(i) = d_wire(5);
+    elseif Imax(i)>=1.5 && Imax(i)<1.8
+        guage_op(i) = 19;
+        Acwire_op(i) = Acwire(4);
+        dw(i) = d_wire(4);
+    elseif Imax(i)>=1.8 && Imax(i)<2.3
+        guage_op(i) = 18;
+        Acwire_op(i) = Acwire(3);
+        dw(i) = d_wire(3);
+    elseif Imax(i)>=2.3 && Imax(i)<2.9
+        guage_op(i) = 17;
+        Acwire_op(i) = Acwire(2);
+        dw(i) = d_wire(2);
+    elseif Imax(i)>=2.9 && Imax(i)<3.7
+        guage_op(i) = 16;
+        Acwire_op(i) = Acwire(1);
+        dw(i) = d_wire(1);
+    end
+end
 
 %While loop will generate in total 5000 data set as n is set at 5000.
+i = 0;          %for the index of the array
 while i<N_ex             
     for g=1:length(guage_set)
         for m=1:length(mat_core)
             TR(i+1) = reluctance(hop(i+1),tc(i+1),ur(m),uo,A_back(i+1),A_top(i+1),A_pole(i+1),tw(i+1),wop(i+1),tg(i+1),A_air(i+1),lgop(i+1));
-            I(i+1) = inductance(Nop(i+1),TR(i+1));
+            L(i+1) = inductance(Nop(i+1),TR(i+1));
             A_space(i+1) = hop(i+1)*wop(i+1);
-            A_wire(i+1) = wire_func(Wa(i+1),fill_factor,Nop(i+1));
-            v1 = volume_core(hop(i+1),dop(i+1),Acip(i+1),wop(i+1),tw(i+1),tc(i+1),tg(i+1),lgop(i+1));
-            %dw = 2
-            %v2 = volume_coil(dw,tw(i+1),A_wire(i+1),Nop(i+1));
-            c = cost_total(v1,v2,mat_core);
-            mat(i+1) = material(m); %material string vector
+            %A_wire(i+1) = wire_func(Wa(i+1),fill_factor,Nop(i+1));
+            v1(i+1) = volume_core(hop(i+1),dop(i+1),Acip(i+1),wop(i+1),tw(i+1),tc(i+1),tg(i+1),lgop(i+1));
+            v2(i+1) = volume_coil(dw(i+1),tw(i+1),Acwire_op(i+1),Nop(i+1));
+            cost_op(i+1) = cost_total(v1(i+1),v2(i+1),mat_core(m));
+            mat_ip(i+1) = material(m); %material string vector
             i = i+1;
         end
     end
@@ -132,9 +146,27 @@ end
 
 %% --- Data in Excel File --- %%
 
+% Data variables are defined for storing the data
+
+%Inputs for the NN
+L_ip_d = L';            %Inductance
+mat_ip_d = mat_ip';          %Material
+A_core_ip_d = Acip';       %Area of the core crosssectional area
+A_space_ip_d = A_space';      %Area of the space available to place the inductor
+
+%Output for the NN
+cost_op_d = cost_op';            %Total cost for manufacturing the inductor 
+turns_op_d = Nop';           %Turns of the inductor 
+L_op_d = L';            %actual inductance calculated according to the design
+d_op_d = dop';            %depth of the core
+w_op_d = wop';            %width of the core
+h_op_d = hop';            %height of the core
+A_w_cross_d = Acwire_op';       %Crosssectional area of the wire winding
+l_g_d = lgop';             %Lenght of the airgap
+
 %inputs write to csv
 
-input_data = [I',mat',Acip',A_space']; %matrix input data
+input_data = [L_ip_d, mat_ip_d, A_core_ip_d, A_space_ip_d]; %matrix input data
 T = array2table(input_data);
 T.Properties.VariableNames(1:4) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space'};
 %T.Properties.VariableNames(1:4) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space'};
@@ -142,22 +174,20 @@ writetable(T,'CCoreInputData.csv')
 
 
 %output write csv
-output_data = [lgop',hop',wop',Nop',c',A_wire]; %matrix output data
+output_data = [L_op_d,l_g_d,h_op_d,w_op_d,d_op_d,turns_op_d,cost_op_d,A_w_cross_d]; %matrix output data
 S = array2table(output_data);
-S.Properties.VariableNames(1:6) = {'Air Gap Length','Height','Width','Number of Turns','Cost','Wire Cross Sectional Area'};
+S.Properties.VariableNames(1:8) = {'Inductance','Air Gap Length','Height','Width','Depth','Number of Turns','Cost','Wire Cross Sectional Area'};
 %S.Properties.VariableNames(1:4) = {'Air Gap Length','Height','Width','Number of Turns','Cost','Wire Cross Sectional Area'};
 writetable(S,'CCoreOutputData.csv')
 
-
-
 %% --- Functions for equations --- %%
-
+%{
 function f = flux(mmf,tr)
 %FLUX Summary of this function goes here
 %   Detailed explanation goes here
     f = mmf/tr;
 end
-
+%}
 function I = inductance(n,tr)
 %INDUCTANCE Summary of this function goes here
 %   Detailed explanation goes here
@@ -187,13 +217,13 @@ function v1 = volume_core(h,d,A_core,w,tw,tc,tg,lg)
 %   Detailed explanation goes here
     v1 = h*d*A_core + 2*(w - tw)*tc*A_core + (h - 2*tc - lg)*tg*A_core;
 end
-
+%{
 function w = wire_func(wa,ku,n)
 %WIRE_FUNC Summary of this function goes here
 %   Detailed explanation goes here
     w = wa*ku/n;
 end
-
+%}
 function v2 = volume_coil(dw,tw,Awind,N)
 %VOLUME SUMMARY of this function goes here
 %   Detailed explaination goes here
