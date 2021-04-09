@@ -162,13 +162,14 @@ d_op_d = dop';            %depth of the core
 w_op_d = wop';            %width of the core
 h_op_d = hop';            %height of the core
 A_w_cross_d = Acwire_op';       %Crosssectional area of the wire winding
+Imax_ip_d = Imax';          %Maximum current capability of the core
 l_g_d = lgop';             %Lenght of the airgap
 
 %inputs write to csv
 
-input_data = [L_ip_d, mat_ip_d, A_core_ip_d, A_space_ip_d]; %matrix input data
+input_data = [L_ip_d, mat_ip_d, A_core_ip_d, A_space_ip_d,Imax_ip_d]; %matrix input data
 T = array2table(input_data);
-T.Properties.VariableNames(1:4) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space'};
+T.Properties.VariableNames(1:5) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space','Max Current Capability'};
 %T.Properties.VariableNames(1:4) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space'};
 writetable(T,'CCoreInputData.csv')
 
