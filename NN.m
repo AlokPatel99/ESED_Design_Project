@@ -1,15 +1,12 @@
-%% ------------ ECSE-549: ESED - Project ---------- %%
-% This file is used to train and test the NN.
 
-%Note: 
-%1) For the crosssectional area of the copper, we will check the area
-%   and accordingly set the guage and store as o/p.
-%2) For input, if the the space is greater than 30.25 cm^2, then can take
-%   the random from range or the max one. 
 
 %%
-input_to_NN = (readtable('CCoreInputData.csv'))';
-output_of_NN = (readtable('CCoreOutputData.csv'))';
+input_to_NN = (readtable('CCoreInputData.csv'));
+output_of_NN = (readtable('CCoreOutputData.csv'));
+%%
+input_data_to_NN = cell2mat((table2cell(input_to_NN))');
+output_data_of_NN = cell2mat((table2cell(output_of_NN))');
+%%
 
 net = feedforwardnet;
 %net = fitnet;
@@ -20,11 +17,23 @@ net.divideFcn = 'divideblock';
 net.divideParam.trainRatio = 40/100;
 net.divideParam.valRatio = 30/100;
 net.divideParam.testRatio = 30/100;
-net = configure(net,input_to_NN,output_of_NN);
 
 net = train(net,input_to_NN,output_of_NN);
 
+%%
+% i = csvread('Jess Document.csv');
+%i(1,:) = Inductance
+%i(2,:) = Material
+%i(3,:) = Cross_Sectional Area
+%i(4,:) = Area of Space
+%i(5,:) = Max Current Capability
 
+input = [Inductance,Material,Cross Sectional Area of Core,Area of the space,MaxCurrentCapability];
 
+sizing_info = net(input); %sizing information from neural network output
 
-%% ----- Code END ----- %%%
+%output write csv
+output_data = sizing_info;
+S = array2table(output_data);
+S.Properties.VariableNames(1:4) = {'Air Gap Length','Height','Width','Number of Turns','Cost','Wire Cross Sectional Area'};
+writetable(S,'CCoreSizingData.csv')
