@@ -20,20 +20,16 @@ net.divideParam.testRatio = 30/100;
 
 net = train(net,input_to_NN,output_of_NN);
 
-%%
-% i = csvread('Jess Document.csv');
-%i(1,:) = Inductance
-%i(2,:) = Material
-%i(3,:) = Cross_Sectional Area
-%i(4,:) = Area of Space
-%i(5,:) = Max Current Capability
+%% read from JESS 
+jess_input_to_NN = (readtable('CCoreJessData.csv')); 
+jess_input_data_to_NN = cell2mat((table2cell(input_to_NN))');
 
-input = [Inductance,Material,Cross Sectional Area of Core,Area of the space,MaxCurrentCapability];
-
-sizing_info = net(input); %sizing information from neural network output
+%input = [Inductance,Material,Cross Sectional Area of Core,Area of the space,MaxCurrentCapability];
+%input = 
+sizing_info = net(jess_input_data_to_NN); %sizing information from neural network output
 
 %output write csv
 output_data = sizing_info;
 S = array2table(output_data);
-S.Properties.VariableNames(1:4) = {'Air Gap Length','Height','Width','Number of Turns','Cost','Wire Cross Sectional Area'};
+S.Properties.VariableNames(1:8) = {'Inductance','Air Gap Length','Height','Width','Depth','Number of Turns','Cost','Wire Cross Sectional Area'};
 writetable(S,'CCoreSizingData.csv')
