@@ -9,8 +9,10 @@ output_data_of_NN = cell2mat((table2cell(output_of_NN))');
 %%
 
 net = feedforwardnet;
+%net = feedforwardnet([25,10]);
 %net = fitnet;
 net.trainFcn = 'trainlm';
+%net.trainFcn = 'trainbr';
 
 net.name = "C-Core Design Assistant Neural Network";
 net.divideFcn = 'divideblock';
