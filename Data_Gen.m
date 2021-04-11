@@ -138,7 +138,8 @@ while i<N_ex
             v1(i+1) = volume_core(hop(i+1),dop(i+1),Acip(i+1),wop(i+1),tw(i+1),tc(i+1),tg(i+1),lgop(i+1));
             v2(i+1) = volume_coil(dw(i+1),tw(i+1),Acwire_op(i+1),Nop(i+1));
             cost_op(i+1) = cost_total(v1(i+1),v2(i+1),mat_core(m));
-            mat_ip(i+1) = material(m); %material string vector
+            %mat_ip(i+1) = material(m); %material string vector
+            mat_ip(i+1) = mat_core(m);
             i = i+1;
         end
     end
