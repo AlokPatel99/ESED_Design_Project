@@ -21,7 +21,7 @@ net.divideParam.testRatio = 30/100;
 net = train(net,input_to_NN,output_of_NN);
 
 %% read from JESS 
-jess_input_to_NN = (readtable('CCoreJessData.csv')); 
+jess_input_to_NN = (readtable('JessData.csv')); 
 jess_input_data_to_NN = cell2mat((table2cell(input_to_NN))');
 
 %input = [Inductance,Material,Cross Sectional Area of Core,Area of the space,MaxCurrentCapability];
