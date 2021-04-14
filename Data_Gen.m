@@ -1,5 +1,7 @@
-%% ------------ ECSE-549: ESED - Project ---------- %%
+%% ------------------- ECSE-549: ESED - Project ------------------- %%
 % This file is used to create the data set for the training of the NN.
+% Various equations are used for the data generation which are stored in
+% the form of functions, and are called for the 
 
 %% --- Creating Inputs for the equations and storing data --- %%
 
@@ -62,7 +64,6 @@ lgop = (lgmin - lgmax)*rand(1,N_ex) + lgmax;
 
 %Type of the cable wire(gugae 16 to 20 are taken)
 %Guage 16 cable have dia of 1.290, similarly other guage cables are listed.
-
 guage_set = [16,17,18,19,20];
 d_wire = 1e-3*[1.2903, 1.1506, 1.0236, 0.9119, 0.8128];
 Acwire = pi*((d_wire/2).^2);
@@ -124,7 +125,7 @@ while i<N_ex
             v1(i+1) = volume_core(hop(i+1),dop(i+1),Acip(i+1),wop(i+1),tw(i+1),tc(i+1),tg(i+1),lgop(i+1));
             v2(i+1) = volume_coil(dw(i+1),tw(i+1),Acwire_op(i+1),Nop(i+1));
             cost_op(i+1) = cost_total(v1(i+1),v2(i+1),mat_core(m));
-            mat_ip(i+1) = material(m); %material string vector
+            mat_ip(i+1) = material(m);                          %material string vector
             mat_no_ip(i+1) = mat_core(m);
             i = i+1;
         end
@@ -132,12 +133,11 @@ while i<N_ex
 end
 
 %% --- Data in Excel File --- %%
-
 % Data variables are defined for storing the data
 
 %Inputs for the NN
 L_ip_d = L';                %Inductance
-mat_ip_d = mat_ip';          %Material
+mat_ip_d = mat_no_ip';          %Material
 A_core_ip_d = Acip';        %Area of the core crosssectional area
 A_space_ip_d = A_space';      %Area of the space available to place the inductor
 Imax_ip_d = Imax';          %Maximum current capability of the core
@@ -153,19 +153,16 @@ A_w_cross_d = Acwire_op';       %Crosssectional area of the wire winding
 l_g_d = lgop';             %Lenght of the airgap
 
 %inputs write to csv
-
 input_data = [L_ip_d, mat_ip_d, A_core_ip_d, A_space_ip_d, Imax_ip_d]; %matrix input data
 T = array2table(input_data);
 T.Properties.VariableNames(1:5) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space', 'Max Current capability'};
-%T.Properties.VariableNames(1:4) = {'Inductance','Material','Cross Sectional Area of Core','Area of the space'};
 writetable(T,'CCoreInputData.csv')
 
 
-%output write csv
+%output write to csv
 output_data = [L_op_d,l_g_d,h_op_d,w_op_d,d_op_d,turns_op_d,cost_op_d,A_w_cross_d]; %matrix output data
 S = array2table(output_data);
 S.Properties.VariableNames(1:8) = {'Inductance','Air Gap Length','Height','Width','Depth','Number of Turns','Cost','Wire Cross Sectional Area'};
-%S.Properties.VariableNames(1:4) = {'Air Gap Length','Height','Width','Number of Turns','Cost','Wire Cross Sectional Area'};
 writetable(S,'CCoreOutputData.csv')
 
 
