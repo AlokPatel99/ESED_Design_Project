@@ -9,3 +9,6 @@ In this code, N_ex variable is used to fix the number of data examples to genera
 In this code the training and the testing of the NN. First, the data is read to the variables, then there is training of the network. The data is divided into the 40/30/30 ratio for the training, validating and the testing of the NN. We can locally store the trained model into local drive which we had done, and it is named as c_core_net_Final.mat.
 3) NN_JESS.m
 In this code the stored NN is loaded back here to test it on the inputs which will be provided by JESS as their output. Here as the TEAM-1 defined the inductance as fixed to mH unit, and our NN is trained based on the MLT system, so we need to convert it to the MLT, so we used the multiplier for that. And the outputs of NN are just stored back in the csv file which will be assessed back by the JESS for satisfaction.
+
+# System Design Flow
+![image](https://user-images.githubusercontent.com/49090662/115591917-a3b5cd80-a2a0-11eb-90e2-1a7be8a1416b.png)
